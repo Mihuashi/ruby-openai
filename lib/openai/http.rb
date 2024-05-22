@@ -71,7 +71,12 @@ module OpenAI
     end
 
     def conn(multipart: false)
-      connection = Faraday.new do |f|
+      proxy = {}
+      proxy[:uri] = ENV['OPENAI_PROXY_URI'] if ENV['OPENAI_PROXY_URI']
+      proxy[:user] = ENV['OPENAI_PROXY_USER'] if ENV['OPENAI_PROXY_USER']
+      proxy[:password] = ENV['OPENAI_PROXY_PASSWORD'] if ENV['OPENAI_PROXY_PASSWORD']
+
+      connection = Faraday.new(proxy: proxy) do |f|
         f.options[:timeout] = @request_timeout
         f.request(:multipart) if multipart
         f.use MiddlewareErrors if @log_errors
